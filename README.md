@@ -2,6 +2,12 @@
 
 This script implements a ranking system using a max heap data structure. It reads input from standard input and processes queries to rank documents based on relevance scores.
 
+A heap is a specialized tree-based data structure that satisfies the heap property. Here are the key points about heaps:
+
+Definition and Properties
+A heap is a complete binary tree data structure.
+It follows the heap property: for every node, the value of its children is greater than or equal to its own value (for max-heap) or less than or equal to its own value (for min-heap)
+
 ```python
 import sys
 ```
