@@ -2,74 +2,119 @@
 
 This script implements a ranking system using a max heap data structure. It reads input from standard input and processes queries to rank documents based on relevance scores.
 
-### Functionality
-
-1. Reads input parameters:
-   - Number of features (n)
-   - Feature weights (ai)
-   - Number of documents (d)
-   - Document feature values (fi)
-   - Number of queries (q)
-
-2. Calculates relevance scores for each document:
-   - Uses dot product of document features and feature weights
-
-3. Creates a max heap of (relevance, index) pairs
-
-4. Processes queries:
-   - Query type 1: Returns top k ranked documents
-   - Query type 2: Updates document feature values and recalculates relevance scores
-
-### Implementation Details
-
-- Uses Python's `heapq` module for efficient heap operations
-- Implements a main function `mainfff()` to handle input processing and query execution
-- Utilizes list comprehensions for concise and efficient calculations
-
-### Usage
-
-To run the script:
-
+```python
+import sys
 ```
-python rank.py < input.txt
+This line imports the `sys` module, which provides access to some variables and functions used or maintained by the interpreter.
+
+```python
+from heapq import heappush, heappop
 ```
+This line imports two functions (`heappush` and `heappop`) from the `heapq` module. These functions are used for efficient priority queue operations.
 
-Where `input.txt` contains the input parameters and queries in the following format:
-
+```python
+def main_func():
 ```
-n
-ai_1 ai_2 ... ai_n
-d
-fi_1_1 fi_1_2 ... fi_1_n
-...
-fi_d_1 fi_d_2 ... fi_d_n
-q
-query_1_type query_1_params ...
-...
-query_q_type query_q_params ...
+This defines a function named `main_func()` that will contain the main logic of the program.
+
+```python
+input = sys.stdin.readline
 ```
+This line assigns the `readline()` method of `sys.stdin` to a variable called `input`. This allows us to read input lines efficiently without needing to call `sys.stdin.readline()` every time we want to read input.
 
-### Time Complexity Analysis
+```python
+n = int(input())
+ai = list(map(int, input().split()))
+d = int(input())
+fi = [list(map(int, input().split())) for _ in range(d)]
+```
+These lines read input and store it in variables:
+- `n`: An integer representing the length of `ai`.
+- `ai`: A list of integers representing document frequencies.
+- `d`: An integer representing the number of documents.
+- `fi`: A list of lists, where each inner list represents a document and contains integer values.
 
-- Relevance calculation: O(d * n)
-- Heap creation: O(d log d)
-- Query processing:
-  - Type 1: O(k) for k <= d, O(d) otherwise
-  - Type 2: O(log d) for updating the heap
+```python
+relevance = [sum(f*a for f, a in zip(doc, ai)) for doc in fi]
+```
+This line calculates the relevance score for each document. It uses a list comprehension to iterate over each document (`doc`) in `fi`, zip it with `ai`, multiply corresponding elements, and sum them up.
 
-### Best Practices Followed
+```python
+# Create a max heap of (relevance, index) pairs
+heap = [(-r, i+1) for i, r in enumerate(relevance)]
+heap.sort()  # Convert to max heap
+```
+These lines create a max heap:
+- The list comprehension creates tuples of (-relevance, index) pairs.
+- The `sort()` method converts this list into a max heap.
 
-1. Efficient use of built-in Python modules (`sys`, `heapq`)
-2. Clear variable naming conventions
-3. Modular approach with separate functions for different operations
-4. Input validation (implicit through type conversions)
-5. Use of list comprehensions for concise and efficient calculations
+```python
+q = int(input())
+```
+This reads the number of queries to be processed.
 
-### Potential Improvements
+```python
+for _ in range(q):
+```
+This starts a loop that will execute q times.
 
-1. Add explicit input validation and error handling
-2. Implement more query types (e.g., range queries)
-3. Optimize heap operations for frequent updates
-4. Consider using NumPy for vectorized operations on larger datasets
+```python
+query = list(map(int, input().split()))
+```
+This reads a query and splits it into integers.
 
-This script provides a solid foundation for implementing a ranking system with efficient querying capabilities. It demonstrates the power of Python's built-in modules and data structures in solving complex algorithmic problems.
+```python
+if query[1] == 1:
+```
+This checks if the query is asking for the top k documents.
+
+```python
+    k = query[2]
+    if k >= d:
+        result = [idx for _, idx in heap]
+    else:
+        result = [idx for _, idx in heap[:k]]
+    print(' '.join(map(str, result)))
+```
+These lines handle the query for top k documents:
+- If k is greater than or equal to the number of documents, it prints all document indices.
+- Otherwise, it prints the top k document indices.
+- Both cases use list comprehensions to extract the indices from the heap.
+
+```python
+elif query[1] == 2:
+```
+This checks if the query is updating a document's relevance.
+
+```python
+    i, j, v = query[1:]
+    old_value = fi[i-1][j-1]
+    fi[i-1][j-1] = v
+    relevance[i-1] += (v - old_value) * ai[j-1]
+```
+These lines update a document's relevance:
+- Extract the document index, term index, and new value from the query.
+- Store the old value and update the document.
+- Calculate the change in relevance and update it.
+
+```python
+    # Update the heap
+    for idx, (r, doc_idx) in enumerate(heap):
+        if doc_idx == i:
+            heap[idx] = (-relevance[i-1], doc_idx)
+            break
+    heap.sort()  # Re-sort the heap
+```
+These lines update the heap:
+- Find the relevant entry in the heap.
+- Update its relevance and index.
+- Sort the heap again to maintain the max heap property.
+
+```python
+main_func()
+```
+This calls the `main_func()` to start executing the program.
+
+This code appears to be implementing a document ranking system, likely for a search engine or similar application. It uses a max heap to efficiently maintain the top-ranked documents based on their relevance scores.
+
+Citations:
